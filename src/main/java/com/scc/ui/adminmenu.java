@@ -1,14 +1,14 @@
-package adminmenu;
+package com.scc.ui;
 
-import Model.User;
-import dao.UserDao;
+import com.scc.Model.User;
+import com.scc.dao.UserDao;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-public class UI {
+public class adminmenu {
     private final Scanner sc = new Scanner(System.in);
     private final UserDao userDao = new UserDao();
 

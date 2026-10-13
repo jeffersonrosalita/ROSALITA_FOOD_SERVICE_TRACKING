@@ -1,6 +1,6 @@
-package dao;
+package com.scc.dao;
 
-import Model.User;
+import com.scc.Model.User;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

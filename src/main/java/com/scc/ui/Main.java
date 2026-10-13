@@ -1,7 +1,6 @@
-package org.example;
+package com.scc.ui;
 
-import adminmenu.UI;
-import dao.DatabaseConnection;
+import com.scc.dao.DatabaseConnection;
 
 import java.sql.SQLException;
 
@@ -10,7 +9,7 @@ public class Main {
         try (var connection = DatabaseConnection.getConnection()) {
             System.out.println("Food Service Tracking System database connected!");
 
-            UI ui = new UI();
+            adminmenu ui = new adminmenu();
             ui.start();
 
         } catch (SQLException e) {
