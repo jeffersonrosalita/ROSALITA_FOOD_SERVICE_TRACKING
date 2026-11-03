@@ -5,8 +5,13 @@ import com.scc.ui.Authentication;
 
 public class Main {
     public static void main(String[] args) {
-        DatabaseInitializer.initializeDatabase();
+        System.out.println("Starting Food Service Tracking System...");
+
+        // 1. Automatically initialize database and tables on startup
+        DatabaseInitializer.initialize();
+
+        // 2. Launch authentication & UI workflow
         Authentication auth = new Authentication();
-        auth.showAuthMenu();
+        auth.start();
     }
 }

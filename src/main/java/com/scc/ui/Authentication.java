@@ -1,104 +1,74 @@
 package com.scc.ui;
 
 import com.scc.dao.UserDao;
-import com.scc.model.User;
+import com.scc.dao.ActivityLogDao;
+import com.scc.Model.User;
 
 import java.util.Scanner;
 
 public class Authentication {
     private final UserDao userDao = new UserDao();
+    private final ActivityLogDao logDao = new ActivityLogDao();
     private final Scanner scanner = new Scanner(System.in);
 
-    public void showAuthMenu() {
+    public void start() {
         while (true) {
-            System.out.println("\n--- FOOD SERVICE TRACKING SYSTEM ---");
+            System.out.println("\n=== FOOD SERVICE TRACKING SYSTEM ===");
             System.out.println("1. Login");
-            System.out.println("2. Register Account");
+            System.out.println("2. Register");
             System.out.println("3. Exit");
-            System.out.print("Choose option: ");
+            System.out.print("Choose an option: ");
 
             String choice = scanner.nextLine().trim();
-
             switch (choice) {
-                case "1" -> handleLogin();
-                case "2" -> handleRegistration();
+                case "1" -> login();
+                case "2" -> register();
                 case "3" -> {
-                    System.out.println("Exiting...");
+                    System.out.println("Exiting application. Goodbye!");
                     return;
                 }
-                default -> System.out.println("Invalid option.");
+                default -> System.out.println("Invalid choice. Try again.");
             }
         }
     }
 
-    private void handleLogin() {
-        System.out.print("Username: ");
-        String username = scanner.nextLine().trim();
-        System.out.print("Password: ");
-        String password = scanner.nextLine().trim();
-
-        User user = userDao.loginUser(username, password);
-
-        if (user == null) {
-            System.out.println("Login failed! Invalid credentials.");
-            return;
-        }
-
-        if (!user.status().equalsIgnoreCase("APPROVED")) {
-            System.out.println("Login failed! Account pending approval.");
-            return;
-        }
-
-        System.out.println("Login successful! Welcome, " + user.username());
-        routeUser(user.roles(), user);
-    }
-
-    private void handleRegistration() {
+    private void login() {
         System.out.print("Enter username: ");
         String username = scanner.nextLine().trim();
         System.out.print("Enter password: ");
         String password = scanner.nextLine().trim();
 
-        // Validated loop that keeps showing only the role selection category on invalid input
-        String role = readValidRegistrationRole();
-        if (role == null) {
-            System.out.println("Registration cancelled.");
-            return;
-        }
-
-        userDao.registerUser(username, password, role);
-    }
-
-    private String readValidRegistrationRole() {
-        while (true) {
-            System.out.print("Select Role: 1. CASHIER  2. STAFF  3. ADMIN [0 to cancel]: ");
-            String roleChoice = scanner.nextLine().trim();
-
-            if (roleChoice.equals("0")) {
-                return null;
+        User user = userDao.login(username, password);
+        if (user != null) {
+            if ("PENDING".equals(user.status())) {
+                System.out.println("Your account is pending admin approval.");
+                return;
             }
 
-            switch (roleChoice) {
-                case "1" -> {
-                    return "CASHIER";
-                }
-                case "2" -> {
-                    return "STAFF";
-                }
-                case "3" -> {
-                    return "ADMIN";
-                }
-                default -> System.out.println("Invalid choice! Please select a valid role option from the list.");
-            }
-        }
-    }
+            String logDesc = String.format("User %s (ID: %d) logged in.", user.username(), user.id());
+            logDao.logAction(user.id(), "USER_LOGIN", logDesc);
+            System.out.println("Login successful! Welcome, " + user.username());
 
-    private void routeUser(String role, User currentUser) {
-        if ("ADMIN".equalsIgnoreCase(role)) {
-            AdminMenu adminMenu = new AdminMenu(userDao, scanner, currentUser);
-            adminMenu.displayMenu();
+            if ("ADMIN".equals(user.role().toUpperCase())) {
+                AdminMenu adminMenu = new AdminMenu(userDao, scanner, user);
+                adminMenu.displayMenu();
+            }
         } else {
-            System.out.println("Routing to " + role + " portal...");
+            System.out.println("Invalid username or password.");
+        }
+    }
+
+    private void register() {
+        System.out.print("Choose username: ");
+        String username = scanner.nextLine().trim();
+        System.out.print("Choose password: ");
+        String password = scanner.nextLine().trim();
+
+        boolean success = userDao.registerUser(username, password, "CUSTOMER");
+        if (success) {
+            System.out.println("Registration successful! Please wait for admin approval.");
+        } else {
+            System.out.println("Registration failed. Username may already exist.");
         }
     }
 }
