@@ -143,11 +143,10 @@ public class AdminMenu {
 
     private String readValidRole() {
         while (true) {
-            System.out.print("Enter new role (ADMIN, STAFF, CUSTOMER, STUDENT, TEACHER): ");
+            System.out.print("Enter new role (ADMIN, STAFF, CUSTOMER): ");
             String role = scanner.nextLine().trim().toUpperCase();
             if (role.equals("0")) return "CANCEL";
-            if (role.equals("ADMIN") || role.equals("STAFF") || role.equals("CUSTOMER") ||
-                    role.equals("STUDENT") || role.equals("TEACHER")) {
+            if (role.equals("ADMIN") || role.equals("STAFF") || role.equals("CUSTOMER")) {
                 return role;
             }
             System.out.println("Invalid role. Please provide a valid role.");
